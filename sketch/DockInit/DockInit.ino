@@ -3,9 +3,9 @@
 #include <HX711.h>
 #include <WiFiManager.h>
 
-#define API_KEY "AIzaSyBaUfe5b8LyA2mA-HtvUqUr77zKYm2KrJI"
-#define DATABASE_URL "https://firext-124cd-default-rtdb.asia-southeast1.firebasedatabase.app/"
-#define DATABASE_SECRET "zFyJ6B9iLU8Vbq2b9nO3Pdy0KuScfevSPp5ixkGI"
+#define API_KEY "YOUR_API"
+#define DATABASE_URL "YOUR_DATABASE"
+#define DATABASE_SECRET "YOUR_SECRET"
 
 FirebaseData fbdo;
 FirebaseAuth auth;
