@@ -85,7 +85,7 @@ A real-time fire extinguisher monitoring system with physical weight sensing and
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Masayukki/firext-monitor-system
-   cd firext-system
+   cd firext-monitor-system
    ```
 
 2. **Install dependencies**
