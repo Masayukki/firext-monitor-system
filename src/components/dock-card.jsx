@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, AlertTriangle, History } from "lucide-react";
+import { CheckIcon, AlertTriangle, History, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formatSimpleDate = (timestamp) => {
@@ -26,10 +26,11 @@ const formatSimpleDate = (timestamp) => {
   }
 };
 
-export function DockCard({ dock }) {
+export function DockCard({ dock, isWeighing, liveWeight, onSelect }) {
   const router = useRouter();
 
-  const weight = parseFloat(dock.weight || 0);
+  // Use live weight if this dock is being weighed, otherwise use saved weight
+  const weight = isWeighing ? liveWeight : parseFloat(dock.weight || 0);
 
   // LED indicator for expiry (comes directly from DB)
   const isLedOn = Boolean(dock.led_state);
@@ -54,11 +55,31 @@ export function DockCard({ dock }) {
     }
   };
 
+  const handleCardClick = () => {
+    if (onSelect) {
+      onSelect(dock);
+    }
+  };
+
   return (
-    <Card>
+    <Card 
+      className={cn(
+        "cursor-pointer transition-all",
+        isWeighing && "ring-2 ring-blue-500 shadow-lg"
+      )}
+      onClick={handleCardClick}
+    >
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>{dock.name}</span>
+          <span className="flex items-center gap-2">
+            {dock.name}
+            {isWeighing && (
+              <span className="inline-flex items-center gap-1 text-xs font-normal bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full animate-pulse">
+                <Radio className="h-3 w-3" />
+                LIVE
+              </span>
+            )}
+          </span>
           <div
             className={cn(
               "flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium",
@@ -78,7 +99,8 @@ export function DockCard({ dock }) {
           <span
             className={cn(
               "text-sm font-medium",
-              isWeightOk ? "text-green-600" : "text-red-600"
+              isWeightOk ? "text-green-600" : "text-red-600",
+              isWeighing && "font-bold"
             )}
           >
             {weight.toFixed(1)} kg
@@ -134,7 +156,7 @@ export function DockCard({ dock }) {
       </CardContent>
       <CardFooter>
         <Button onClick={handleReweighClick} className="w-full">
-          Reweigh Dock
+          Details
         </Button>
       </CardFooter>
     </Card>
