@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, AlertTriangle, History, Radio, Zap } from "lucide-react";
+import { CheckIcon, AlertTriangle, History, Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const formatSimpleDate = (timestamp) => {
@@ -29,12 +29,14 @@ const formatSimpleDate = (timestamp) => {
 export function DockCard({ dock, isWeighing, liveWeight, onSelect }) {
   const router = useRouter();
 
+  // Use live weight if this dock is being weighed, otherwise use saved weight
   const weight = isWeighing ? liveWeight : parseFloat(dock.weight || 0);
 
-  // LED states from Firebase (set by ESP32 logic)
-  const isLedOn     = Boolean(dock.led_state);   // Expired  → solid ON
-  const isBlinking  = Boolean(dock.isBlinking);  // Within 7 days → blinking
-  const isWeightOk  = weight > 3.2;
+  // LED indicator for expiry (comes directly from DB)
+  const isLedOn = Boolean(dock.led_state);
+
+  // Status for weight
+  const isWeightOk = weight > 3.2;
 
   const daysUntilExpiry = (() => {
     if (!dock.expires_at) return null;
@@ -59,33 +61,8 @@ export function DockCard({ dock, isWeighing, liveWeight, onSelect }) {
     }
   };
 
-  // Determine LED status label, color, and icon
-  const getLedStatus = () => {
-    if (isLedOn) {
-      return {
-        label: "Expiry LED ON",
-        className: "text-red-600",
-        icon: <AlertTriangle className="mr-1 h-3.5 w-3.5" />,
-      };
-    }
-    if (isBlinking) {
-      return {
-        label: "Expiry LED BLINKING",
-        className: "text-red-600",
-        icon: <Zap className="mr-1 h-3.5 w-3.5" />,
-      };
-    }
-    return {
-      label: "Expiry LED OFF",
-      className: "text-green-600",
-      icon: <CheckIcon className="mr-1 h-3.5 w-3.5" />,
-    };
-  };
-
-  const ledStatus = getLedStatus();
-
   return (
-    <Card
+    <Card 
       className={cn(
         "cursor-pointer transition-all",
         isWeighing && "ring-2 ring-blue-500 shadow-lg"
@@ -132,9 +109,21 @@ export function DockCard({ dock, isWeighing, liveWeight, onSelect }) {
 
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">LED Status</span>
-          <span className={cn("flex items-center text-sm font-medium", ledStatus.className)}>
-            {ledStatus.icon}
-            {ledStatus.label}
+          <span
+            className={cn(
+              "flex items-center text-sm font-medium",
+              isLedOn ? "text-red-600" : "text-green-600"
+            )}
+          >
+            {isLedOn ? (
+              <>
+                <AlertTriangle className="mr-1 h-3.5 w-3.5" /> Expiry LED ON
+              </>
+            ) : (
+              <>
+                <CheckIcon className="mr-1 h-3.5 w-3.5" /> Expiry LED OFF
+              </>
+            )}
           </span>
         </div>
 
