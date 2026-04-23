@@ -22,7 +22,6 @@ export function DockForm({ isOpen, onClose, onSubmit, initialData }) {
     defaultValues: {
       name: "",
       location: "",
-      weight: 4.5,
       expires_at: "",
       led_num: "",
     },
@@ -32,9 +31,9 @@ export function DockForm({ isOpen, onClose, onSubmit, initialData }) {
     if (initialData) {
       const safeDate = initialData.expires_at
         ? (() => {
-            const d = new Date(initialData.expires_at);
-            return isNaN(d.getTime()) ? "" : d.toISOString().split("T")[0];
-          })()
+              const d = new Date(initialData.expires_at);
+              return isNaN(d.getTime()) ? "" : d.toISOString().split("T")[0];
+            })()
         : "";
 
       reset({
@@ -47,7 +46,6 @@ export function DockForm({ isOpen, onClose, onSubmit, initialData }) {
   const onSubmitForm = (data) => {
     onSubmit({
       ...data,
-      weight: Number(data.weight),
       led_num: Number(data.led_num),
       expires_at: new Date(data.expires_at).toISOString(),
     });
@@ -79,24 +77,6 @@ export function DockForm({ isOpen, onClose, onSubmit, initialData }) {
             />
             {errors.location && (
               <p className="text-sm text-red-500">{errors.location.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="weight">Weight (kg)</Label>
-            <Input
-              id="weight"
-              type="number"
-              step="0.1"
-              {...register("weight", {
-                required: "Weight is required",
-                min: { value: 0, message: "Weight must be at least 0" },
-                max: { value: 10, message: "Weight cannot exceed 10 kg" },
-                validate: (value) =>
-                  !isNaN(value) || "Weight must be a valid number",
-              })}
-            />
-            {errors.weight && (
-              <p className="text-sm text-red-500">{errors.weight.message}</p>
             )}
           </div>
           <div className="space-y-2">
