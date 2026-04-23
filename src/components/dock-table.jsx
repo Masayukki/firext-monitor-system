@@ -18,13 +18,17 @@ export function DockTable({ docks, onEdit, onDelete }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState(null);
 
+  // Ensure docks is an array
   const safeDocksArray = Array.isArray(docks) ? docks : [];
 
   const filteredDocks = safeDocksArray.filter((dock) => {
+    // Check if dock is valid and has required properties
     if (!dock || typeof dock !== "object") return false;
+
     const name = dock.name || "";
     const location = dock.location || "";
     const query = searchQuery.toLowerCase();
+
     try {
       return (
         name.toString().toLowerCase().includes(query) ||
@@ -44,6 +48,7 @@ export function DockTable({ docks, onEdit, onDelete }) {
 
   const formatDate = (date) => {
     if (!date) return "Not set";
+
     try {
       return new Intl.DateTimeFormat("en-US", {
         year: "numeric",
@@ -56,6 +61,28 @@ export function DockTable({ docks, onEdit, onDelete }) {
     }
   };
 
+  const formatWeight = (weight) => {
+    if (weight === undefined || weight === null) return "N/A";
+    try {
+      return Number(weight).toFixed(1);
+    } catch (error) {
+      console.error("Invalid weight format:", weight, error);
+      return "Invalid";
+    }
+  };
+
+  const getWeightClass = (weight) => {
+    if (weight === undefined || weight === null) return "text-gray-500";
+    try {
+      const numWeight = Number(weight);
+      if (numWeight > 4.1) return "text-green-500";
+      if (numWeight > 3.2) return "text-yellow-500";
+      return "text-red-500";
+    } catch (error) {
+      return "text-gray-500";
+    }
+  };
+
   const getLedStatusClass = (ledState) => {
     return ledState ? "text-red-500" : "text-green-500";
   };
@@ -64,7 +91,7 @@ export function DockTable({ docks, onEdit, onDelete }) {
     if (safeDocksArray.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-24 text-center">
+          <TableCell colSpan={7} className="h-24 text-center">
             <div className="flex flex-col items-center justify-center text-muted-foreground">
               <div className="rounded-full bg-muted p-3 mb-2">
                 <Search className="h-5 w-5" />
@@ -78,7 +105,7 @@ export function DockTable({ docks, onEdit, onDelete }) {
     } else if (filteredDocks.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={6} className="h-24 text-center">
+          <TableCell colSpan={7} className="h-24 text-center">
             <div className="flex flex-col items-center justify-center text-muted-foreground">
               <div className="rounded-full bg-muted p-3 mb-2">
                 <Search className="h-5 w-5" />
@@ -109,6 +136,7 @@ export function DockTable({ docks, onEdit, onDelete }) {
             <TableHead className="w-[100px]">ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Location</TableHead>
+            <TableHead>Weight (kg)</TableHead>
             <TableHead>LED Status</TableHead>
             <TableHead>Expiration Date</TableHead>
             <TableHead className="w-[100px]">Actions</TableHead>
@@ -138,6 +166,11 @@ export function DockTable({ docks, onEdit, onDelete }) {
                 <TableCell className="font-medium">{dock.name}</TableCell>
                 <TableCell>{dock.location}</TableCell>
                 <TableCell>
+                  <span className={getWeightClass(dock.weight)}>
+                    {formatWeight(dock.weight)} kg
+                  </span>
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center gap-2">
                     <Lightbulb
                       className={cn(
@@ -151,7 +184,8 @@ export function DockTable({ docks, onEdit, onDelete }) {
                         : dock.toReweigh?.status === "needTo"
                         ? "BLINK"
                         : "OFF"}{" "}
-                      (#{dock.led_num || "N/A"})
+                      (#
+                      {dock.led_num || "N/A"})
                     </span>
                   </div>
                 </TableCell>
